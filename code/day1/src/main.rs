@@ -17,11 +17,74 @@ fn main() {
     let mut s = String::new();
     match file.read_to_string(&mut s) {
         Err(why) => panic!("couldn't read {}: {}", display, why),
-        Ok(_) => print!("{} has been read succesfully.", display),
+        Ok(_) => println!("{} has been read succesfully.", display),
     }
+
+    let (mut left, mut right) = seperate(s);
+
+    left.sort();
+    right.sort();
+
+    let mut differences = differences(left, right);
+
+    println!("The sum of differences between left and right is: {}", differences.iter().sum::<i128>());
 }
 
-fn seperate(s: String) -> (Vec<i32>, Vec<i32>) {
-    let mut left: Vec<i32> = Vec::new();
-    let mut right: Vec<i32> = Vec::new();
+fn differences(v1: Vec<i128>, v2: Vec<i128>) -> Vec<i128> {
+    let mut differences: Vec<i128> = Vec::new();
+
+    for (i, o) in v1.iter().enumerate() {
+        differences.push(
+            (o - v2[i]).abs()
+        );
+    }
+
+    differences
+}
+
+fn seperate(s: String) -> (Vec<i128>, Vec<i128>) {
+    let mut left: Vec<i128> = Vec::new();
+    let mut right: Vec<i128> = Vec::new();
+
+    // Replace series of 4 spaces with tab
+    let mut new_s = String::from("");
+    let mut spaces: i8 = 0;
+    for o in s.chars() {
+        if o == ' ' {
+            spaces += 1;
+            if spaces == 3 {
+                new_s.push('\t');
+                spaces = 0;
+            }
+        } else {
+            new_s.push(o);
+        }
+    }
+
+    let mut current_str: String = "".to_string();
+    for o in new_s.chars() {
+        if o == '\t' {
+            let parsed_id: i128 = match current_str.parse() {
+                Ok(id) => id,
+                Err(error) => panic!("Invalid id: {current_str}\nError: {error}")
+            };
+
+            left.push(parsed_id);
+            current_str = "".to_string();
+            continue;
+        } else if o == 0xA as char {
+            let parsed_id: i128 = match current_str.parse() {
+                Ok(id) => id,
+                Err(error) => panic!("Invalid id: {current_str}\nError: {error}")
+            };
+
+            right.push(parsed_id);
+            current_str = "".to_string();
+            continue;
+        }
+
+        current_str.push_str(&o.to_string());
+    }
+
+    (left, right)
 }
