@@ -20,7 +20,30 @@ fn main() {
 
     let (left, right) = seperate(s);
 
-    
+    println!("Similarity of {}.", rate_similarity(&left, &right));
+}
+
+fn rate_similarity(v1: &Vec<i128>, v2: &Vec<i128>) -> i128 {
+    let mut score: i128 = 0;
+    for (i, o) in v1.iter().enumerate() {
+        let occourences = find_occourences(o, v2);
+
+        score += o * occourences;
+    }
+
+    score
+}
+
+fn find_occourences(of: &i128, inside: &Vec<i128>) -> i128 {
+    let mut quantity: i128 = 0;
+
+    for o in inside.iter() {
+        if o == of {
+            quantity += 1;
+        }
+    }
+
+    quantity
 }
 
 fn seperate(s: String) -> (Vec<i128>, Vec<i128>) {
